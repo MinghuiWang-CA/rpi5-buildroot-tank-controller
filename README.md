@@ -37,10 +37,10 @@ To generate the firmware image:
 3. Run `make` to compile the cross-toolchain, kernel, and rootfs.
 4. The final image `sdcard.img` will be located in `output/images/`.
 
+<br>
+
 ## Application Requirements (GUI)
 The `Tank_Interface_GUI.py` application is integrated into the Buildroot image, but can also be run standalone for testing:
-
-<br>
 
 - **Python 3.11+**
 - **PyQt5**: `pip install PyQt5`

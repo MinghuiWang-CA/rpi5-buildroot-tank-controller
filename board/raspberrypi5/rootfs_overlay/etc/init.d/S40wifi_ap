@@ -1,0 +1,49 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    echo "[wifi_ap] Setting up wlan0 as AP..."
+
+    # mettre l'interface up
+    ip link set wlan0 up
+
+    # AP mode
+    iw dev wlan0 set type __ap
+
+    # IP statique
+    ip addr flush dev wlan0
+    ip addr add 192.168.4.1/24 dev wlan0
+
+    # démarrer hostapd
+    echo "[wifi_ap] Starting hostapd..."
+    hostapd -B /etc/hostapd/hostapd.conf
+
+    # démarrer dnsmasq
+    echo "[wifi_ap] Starting dnsmasq..."
+    dnsmasq -C /etc/dnsmasq.conf
+
+    # démarrer mosquitto
+    echo "[wifi_ap] Starting mosquitto..."
+    mosquitto -c /etc/mosquitto/mosquitto.conf &
+
+    ;;
+  stop)
+    echo "[wifi_ap] Stopping services..."
+    killall mosquitto 2>/dev/null
+    killall dnsmasq 2>/dev/null
+    killall hostapd 2>/dev/null
+
+    ip addr flush dev wlan0
+    ip link set wlan0 down
+    ;;
+  restart)
+    $0 stop
+    $0 start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+exit 0

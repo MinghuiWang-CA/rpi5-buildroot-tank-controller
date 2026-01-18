@@ -1,0 +1,17 @@
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+      
+
+auto wlan0
+iface wlan0 inet static
+    address 192.168.4.1
+    netmask 255.255.255.0
+    pre-up iw dev wlan0 set type __ap
+    pre-up ifconfig wlan0 up
+    post-up hostapd -B /etc/hostapd/hostapd.conf
+    post-up dnsmasq
+    post-down killall hostapd
+    post-down killall dnsmasq

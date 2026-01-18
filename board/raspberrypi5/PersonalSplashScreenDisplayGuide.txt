@@ -1,0 +1,6 @@
+Symbol: BR2_LINUX_KERNEL_CUSTOM_LOGO_PATH [=board/logo.png]                                                                                           Type  : string                                                                                                                                        Prompt: Custom boot logo file path                                                                                                                    Location:                                                                                                                                          -> Kernel                                                                                                                                         -> 
+Linux Kernel (BR2_LINUX_KERNEL [=y])   
+ ->    
+Custom boot logo file path
+
+Nous avons donnée le path relative de mon logo.png:board/logo.png                                                                                                   

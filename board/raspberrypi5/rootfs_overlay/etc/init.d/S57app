@@ -1,0 +1,73 @@
+# cat /etc/init.d/S57app
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          S57App
+# Required-Start:    $remote_fs $syslog $time
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Lance l'application TankApp (Interface IGU) au demarrage.
+# Description:       Ce script lance l'application Python Tank_Interface_GUI.py.
+### END INIT INFO
+ 
+# --- Configuration (A ajuster) ---
+APP_DIR="/usr/bin/TankApp"
+APP_SCRIPT="/usr/bin/TankApp/Tank_Interface_GUI.py"
+USER="root"
+PYTHON_EXEC="/usr/bin/python3"
+LOG_PATH="/var/log/TankApp.log"
+LOG_DIR=/var/log/TankApp
+mkdir -p "$LOG_DIR"
+# ---------------------------------
+ 
+ 
+case "$1" in
+    start)
+        echo "==> Lancement TankApp"
+ 
+        # Tenter de se positionner dans le répertoire d'exécution
+        #cd "$APP_DIR" || exit 1
+ 
+        # 1. EXPORTER LA VARIABLE D'ENVIRONNEMENT QT (important pour l'affichage direct)
+        # Ceci force Qt à utiliser le framebuffer (écran brut).
+        export QT_QPA_PLATFORM=linuxfb
+        export DISPLAY=:0
+        # Si vous avez un environnement graphique X ou Wayland, utilisez DISPLAY=:0
+        # Si vous utilisez linuxfb, vous n'avez pas besoin de DISPLAY=:0
+ 
+        # 2. Lancer le script en arrière-plan (nohup) en tant qu'utilisateur 'pi'
+        #"$USER" nohup "$PYTHON_EXEC" "$APP_SCRIPT" &
+ 
+        nohup $PYTHON_EXEC $APP_SCRIPT >> $LOG_PATH 2>&1 &
+ 
+ 
+        # Enregistrer le PID pour l'arrêt
+        echo "$!" > /var/run/S57App.pid
+        ;;
+ 
+    stop)
+        echo "==> Arret TankApp"
+        # Utiliser le PID enregistré pour un arrêt plus propre
+        if [ -f /var/run/S57App.pid ]; then
+            PID=$(cat /var/run/S57App.pid)
+            kill $PID
+            rm /var/run/S57App.pid
+        else
+            echo "PID non trouvé. Tentative d'arrêt de python3 par nom..."
+            killall python3
+        fi
+        ;;
+ 
+    restart|force-reload)
+        "$0" stop
+        sleep 2
+        "$0" start
+        ;;
+ 
+    *)
+        echo "Utilisation: $0 {start|stop|restart|force-reload}"
+        exit 1
+        ;;
+esac
+ 
+exit 0
